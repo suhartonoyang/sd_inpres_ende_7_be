@@ -1,4 +1,3 @@
-package co.id.sdinpresende7be;
 
 
 import org.springframework.boot.SpringApplication;
