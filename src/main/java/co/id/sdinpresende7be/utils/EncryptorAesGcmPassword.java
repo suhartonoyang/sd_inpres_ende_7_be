@@ -9,17 +9,17 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import co.id.sdinpresende7be.model.AesConfiguration;
-import co.id.sdinpresende7be.service.AesConfigurationService;
 
+@Component
 public class EncryptorAesGcmPassword {
 
-	private final Charset UTF_8 = StandardCharsets.UTF_8;
+	private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
 	// return a base 64 encoded aes encrypted text
-	public static String encrypt(byte[] pText, String password, AesConfiguration aesConfiguration) throws Exception {
+	public String encrypt(byte[] pText, String password, AesConfiguration aesConfiguration) throws Exception {
 		System.out.println("Start encrypt");
 		if (aesConfiguration == null) {
 			throw new Exception("AES Configuration not found in database!");
@@ -51,13 +51,16 @@ public class EncryptorAesGcmPassword {
 
 	// we need the same password, salt and iv to decrypt it
 	public String decrypt(String cText, String password, AesConfiguration aesConfiguration) throws Exception {
-
+		System.out.println("Start decrypt");
 		if (aesConfiguration == null) {
 			throw new Exception("AES Configuration not found in database!");
 		}
-
+		
+		System.out.println(cText + " - " + password + " - " + UTF_8);
+		System.out.println(cText.getBytes(UTF_8));
+		
 		byte[] decode = Base64.getDecoder().decode(cText.getBytes(UTF_8));
-
+		
 		// get back the iv and salt from cipher text
 		ByteBuffer bb = ByteBuffer.wrap(decode);
 		byte[] iv = new byte[aesConfiguration.getIvLengthByte()];

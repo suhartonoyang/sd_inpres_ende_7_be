@@ -3,7 +3,6 @@ package co.id.sdinpresende7be.service;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,23 +19,16 @@ public class UserService {
 	@Autowired
 	private UserRepo userRepo;
 
-	private EncryptorAesGcmPassword encryptor;
-
 	@Autowired
 	private AesConfigurationService aesConfigurationService;
+
+	@Autowired
+	private EncryptorAesGcmPassword encryptor;
 
 	@Value("${password.key.aes}")
 	private String PASSWORD_KEY;
 
 	private final Charset UTF_8 = StandardCharsets.UTF_8;
-
-	public List<User> getAllUsers() {
-		return userRepo.findAll();
-	}
-
-	public User getUserById(int id) {
-		return userRepo.findById(id).orElse(null);
-	}
 
 	public User getUserByUsername(String username) {
 		return userRepo.findByUsername(username);
@@ -53,8 +45,26 @@ public class UserService {
 		user.setPassword(encryptedPassword);
 		user.setPasswordKey(PASSWORD_KEY);
 		user.setAesConfiguration(aesConfiguration);
-
 		return userRepo.save(user);
+	}
+
+	public User login(String username, String password) throws Exception {
+		User user = getUserByUsername(username);
+		if (user == null)
+			return null;
+
+		if (!PASSWORD_KEY.equals(user.getPasswordKey()))
+			throw new Exception("Password Key in server and database are not match");
+
+		AesConfiguration aesConfiguration = user.getAesConfiguration();
+		String decryptedText = encryptor.decrypt(user.getPassword(), PASSWORD_KEY, aesConfiguration);
+
+		if (decryptedText == null || decryptedText.equals(""))
+			throw new Exception("Result of decrypt password is empty");
+		else if (!decryptedText.equals(password))
+			return null;
+
+		return user;
 	}
 
 }

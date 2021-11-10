@@ -1,7 +1,6 @@
 package co.id.sdinpresende7be.controller;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import co.id.sdinpresende7be.bean.Response;
@@ -25,26 +25,7 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
-	@GetMapping
-	public ResponseEntity<Response> getAllUsers() {
-		List<User> users = userService.getAllUsers();
-		Response resp = new Response();
-		String code = String.valueOf(HttpStatus.OK.value());
-		String message = HttpStatus.OK.name();
-
-		if (users.isEmpty()) {
-			code = String.valueOf(HttpStatus.NOT_FOUND.value());
-			message = "No Data Found";
-		}
-
-		resp.setCode(code);
-		resp.setMessage(message);
-		resp.setData(users);
-
-		return ResponseEntity.ok(resp);
-	}
-
-	@PostMapping
+	@PostMapping("/register")
 	public ResponseEntity<Response> register(@RequestBody User user) throws Exception {
 		User newUser = userService.register(user.getUsername(), user.getPassword());
 		Response resp = new Response();
@@ -55,5 +36,21 @@ public class UserController {
 			resp.setData(Arrays.asList(newUser));
 		}
 		return ResponseEntity.status(HttpStatus.CREATED).body(resp);
+	}
+
+	@GetMapping("/login")
+	public ResponseEntity<Response> login(@RequestParam String username, @RequestParam String password) throws Exception {
+		User user = userService.login(username, password);
+		Response resp = new Response();
+		if (user == null) {
+			resp.setCode(String.valueOf(HttpStatus.NOT_FOUND.value()));
+			resp.setMessage("Incorrect username or password!");
+			resp.setData(null);
+		} else {
+			resp.setCode(String.valueOf(HttpStatus.OK.value()));
+			resp.setMessage("Sucessfully Login!");
+			resp.setData(Arrays.asList(user));
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(resp);
 	}
 }

@@ -11,10 +11,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity(name = "profile")
 public class Profile implements Serializable {
@@ -25,7 +21,9 @@ public class Profile implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(unique = true, nullable = false, precision = 10)
 	private int id;
-	@Column(nullable = false, length = 255)
+	@Column(name = "profile_type", nullable = false, length = 255, unique = true)
+	private String profileType;
+	@Column(length = 255)
 	private String title;
 	private String description;
 	private String vision;
@@ -41,10 +39,6 @@ public class Profile implements Serializable {
 	private String modifiedBy;
 	@Column(name = "modified_date")
 	private Date modifiedDate;
-	@JsonIgnoreProperties(value = {"profile"})
-	@ManyToOne(optional = false)
-	@JoinColumn(name = "profile_type_id", nullable = false)
-	private ProfileType profileType;
 
 	/** Default constructor. */
 	public Profile() {
@@ -67,6 +61,24 @@ public class Profile implements Serializable {
 	 */
 	public void setId(int aId) {
 		id = aId;
+	}
+
+	/**
+	 * Access method for profileType.
+	 *
+	 * @return the current value of profileType
+	 */
+	public String getProfileType() {
+		return profileType;
+	}
+
+	/**
+	 * Setter method for profileType.
+	 *
+	 * @param aProfileType the new value for profileType
+	 */
+	public void setProfileType(String aProfileType) {
+		profileType = aProfileType;
 	}
 
 	/**
@@ -250,24 +262,6 @@ public class Profile implements Serializable {
 	}
 
 	/**
-	 * Access method for profileType.
-	 *
-	 * @return the current value of profileType
-	 */
-	public ProfileType getProfileType() {
-		return profileType;
-	}
-
-	/**
-	 * Setter method for profileType.
-	 *
-	 * @param aProfileType the new value for profileType
-	 */
-	public void setProfileType(ProfileType aProfileType) {
-		profileType = aProfileType;
-	}
-
-	/**
 	 * Compares the key for this instance with another Profile.
 	 *
 	 * @param other The object to compare to
@@ -317,9 +311,9 @@ public class Profile implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Profile [id=" + id + ", title=" + title + ", description=" + description + ", vision=" + vision + ", mission=" + mission
-				+ ", category=" + category + ", image=" + Arrays.toString(image) + ", createdBy=" + createdBy + ", createdDate="
-				+ createdDate + ", modifiedBy=" + modifiedBy + ", modifiedDate=" + modifiedDate + ", profileType=" + profileType + "]";
+		return "Profile [id=" + id + ", profileType=" + profileType + ", title=" + title + ", description=" + description + ", vision="
+				+ vision + ", mission=" + mission + ", category=" + category + ", image=" + Arrays.toString(image) + ", createdBy="
+				+ createdBy + ", createdDate=" + createdDate + ", modifiedBy=" + modifiedBy + ", modifiedDate=" + modifiedDate + "]";
 	}
 
 }
