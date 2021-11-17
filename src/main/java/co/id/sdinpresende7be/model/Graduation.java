@@ -20,9 +20,9 @@ public class Graduation implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(unique = true, nullable = false, precision = 10)
 	private int id;
-	@Column(nullable = false, precision = 10)
+	@Column(unique = true, nullable = false, precision = 10)
 	private int nis;
-	@Column(unique = true, nullable = false, length = 255)
+	@Column(nullable = false, length = 255)
 	private String name;
 	@Column(nullable = false, length = 1)
 	private String gender;

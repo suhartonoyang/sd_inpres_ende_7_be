@@ -29,7 +29,7 @@ public class Student implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(unique = true, nullable = false, precision = 10)
 	private int id;
-	@Column(unique = true, nullable = false, precision = 10)
+	@Column(nullable = false, precision = 10)
 	private int nis;
 	@Column(nullable = false, length = 255)
 	private String name;

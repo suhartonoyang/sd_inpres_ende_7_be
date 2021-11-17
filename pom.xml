@@ -64,7 +64,7 @@
 			<artifactId>springfox-swagger-ui</artifactId>
 			<version>2.9.2</version>
 		</dependency>
-		
+
 		<!-- Excel -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
@@ -74,6 +74,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>sd-inpres-endes-7</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

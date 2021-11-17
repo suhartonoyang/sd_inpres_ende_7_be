@@ -1,10 +1,9 @@
 package co.id.sdinpresende7be.service;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -21,19 +20,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 
-import co.id.sdinpresende7be.model.AesConfiguration;
 import co.id.sdinpresende7be.model.Alumni;
-import co.id.sdinpresende7be.model.Classroom;
 import co.id.sdinpresende7be.model.Enroll;
 import co.id.sdinpresende7be.model.Graduation;
 import co.id.sdinpresende7be.model.Student;
 import co.id.sdinpresende7be.model.SubjectClassroom;
 import co.id.sdinpresende7be.model.User;
 import co.id.sdinpresende7be.repo.AlumniRepo;
-import co.id.sdinpresende7be.repo.ClassroomRepo;
 import co.id.sdinpresende7be.repo.EnrollRepo;
 import co.id.sdinpresende7be.repo.GraduationRepo;
 import co.id.sdinpresende7be.repo.StudentRepo;
@@ -68,9 +64,6 @@ public class UploadFileService {
 	@Autowired
 	private EncryptorAesGcm encryptorFile;
 
-	@Autowired
-	private AesConfigurationService aesService;
-
 	@Value("${password.key.aes}")
 	private String PASSWORD_KEY;
 
@@ -98,7 +91,6 @@ public class UploadFileService {
 	}
 
 	private List<?> uploadFileAlumni(String username, MultipartFile file) throws Exception {
-		alumniRepo.deleteAll();
 		Workbook workbook = new XSSFWorkbook(file.getInputStream());
 		Sheet sheet = workbook.getSheetAt(0);
 		Iterator<Row> rows = sheet.iterator();
@@ -145,28 +137,27 @@ public class UploadFileService {
 			alumnis.add(alumni);
 		}
 
-		workbook.close();
-
 		if (!alumnis.isEmpty()) {
 			alumniRepo.saveAll(alumnis);
 		}
 
-		fileService.save(convertMultipartFiletoFile(file));
-		String filename = StringUtils.cleanPath(file.getOriginalFilename());
-		
-		File encryptedFile = new File(filename + ".encrypted");
-		encryptorFile.encrypt(convertMultipartFiletoFile(file), encryptedFile);
-		fileService.save(encryptedFile);
+		workbook.close();
 
-		File decryptedFile = new File(filename.replace(".", "-decrypted."));
+		fileService.saveMultipartFile("alumni", file);
+		String filename = StringUtils.cleanPath(file.getOriginalFilename());
+
+		String encryptedPath = fileService.getPath("alumni", (filename + ".encrypted"));
+		File encryptedFile = new File(encryptedPath);
+		encryptorFile.encrypt(getFile(fileService.getPath("alumni", filename)), encryptedFile);
+
+		String decryptedPath = fileService.getPath("alumni", filename.replace(".", "-decrypted."));
+		File decryptedFile = new File(decryptedPath);
 		encryptorFile.decrypt(encryptedFile, decryptedFile);
-		fileService.save(decryptedFile);
 
 		return alumnis;
 	}
 
-	private List<?> uploadFileGraduation(String username, MultipartFile file) throws IOException {
-		graduationRepo.deleteAll();
+	private List<?> uploadFileGraduation(String username, MultipartFile file) throws Exception {
 		Workbook workbook = new XSSFWorkbook(file.getInputStream());
 		Sheet sheet = workbook.getSheetAt(0);
 		Iterator<Row> rows = sheet.iterator();
@@ -219,13 +210,21 @@ public class UploadFileService {
 			graduationRepo.saveAll(graduations);
 		}
 
-		fileService.save(convertMultipartFiletoFile(file), "-decrypted");
+		fileService.saveMultipartFile("graduation", file);
+		String filename = StringUtils.cleanPath(file.getOriginalFilename());
+
+		String encryptedPath = fileService.getPath("graduation", (filename + ".encrypted"));
+		File encryptedFile = new File(encryptedPath);
+		encryptorFile.encrypt(getFile(fileService.getPath("graduation", filename)), encryptedFile);
+
+		String decryptedPath = fileService.getPath("graduation", filename.replace(".", "-decrypted."));
+		File decryptedFile = new File(decryptedPath);
+		encryptorFile.decrypt(encryptedFile, decryptedFile);
 
 		return graduations;
 	}
 
 	private List<?> uploadFileStudent(String username, MultipartFile file) throws Exception {
-		studentRepo.deleteAll();
 		Workbook workbook = new XSSFWorkbook(file.getInputStream());
 		Sheet sheet = workbook.getSheetAt(0);
 		Iterator<Row> rows = sheet.iterator();
@@ -284,7 +283,16 @@ public class UploadFileService {
 			studentRepo.saveAll(students);
 		}
 
-		fileService.save(convertMultipartFiletoFile(file), "-decrypted");
+		fileService.saveMultipartFile("student", file);
+		String filename = StringUtils.cleanPath(file.getOriginalFilename());
+
+		String encryptedPath = fileService.getPath("student", (filename + ".encrypted"));
+		File encryptedFile = new File(encryptedPath);
+		encryptorFile.encrypt(getFile(fileService.getPath("student", filename)), encryptedFile);
+
+		String decryptedPath = fileService.getPath("student", filename.replace(".", "-decrypted."));
+		File decryptedFile = new File(decryptedPath);
+		encryptorFile.decrypt(encryptedFile, decryptedFile);
 
 		return students;
 	}
@@ -344,18 +352,23 @@ public class UploadFileService {
 			enrollRepo.saveAll(enrolls);
 		}
 
-		fileService.save(convertMultipartFiletoFile(file), "-decrypted");
+		fileService.saveMultipartFile("nilai", file);
+		String filename = StringUtils.cleanPath(file.getOriginalFilename());
+
+		String encryptedPath = fileService.getPath("nilai", (filename + ".encrypted"));
+		File encryptedFile = new File(encryptedPath);
+		encryptorFile.encrypt(getFile(fileService.getPath("nilai", filename)), encryptedFile);
+
+		String decryptedPath = fileService.getPath("nilai", filename.replace(".", "-decrypted."));
+		File decryptedFile = new File(decryptedPath);
+		encryptorFile.decrypt(encryptedFile, decryptedFile);
 
 		return enrolls;
 	}
 
-	private File convertMultipartFiletoFile(MultipartFile file) throws IOException {
-		File convFile = new File(file.getOriginalFilename());
-		convFile.createNewFile();
-		FileOutputStream output = new FileOutputStream(convFile);
-		output.write(file.getBytes());
-		output.close();
-		return convFile;
+	private File getFile(String path) throws FileNotFoundException {
+		File file = ResourceUtils.getFile(path);
+		return file;
 	}
 
 }

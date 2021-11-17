@@ -25,6 +25,7 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import co.id.sdinpresende7be.model.AesConfiguration;
@@ -32,19 +33,15 @@ import co.id.sdinpresende7be.service.AesConfigurationService;
 
 @Component
 public class EncryptorAesGcm {
-
-	@Autowired
-	private AesConfigurationService aesConfigurationService;
+	
+	@Value("${password.key.aes}")
+	private String PASSWORD_KEY;
 
 	public void encrypt(File inputFile, File outputFile) throws Exception {
 		System.out.println("start encrypt file");
-		AesConfiguration aesConfiguration = aesConfigurationService.getAesConfigurationById(3);
-//		SecretKey secretKey = CryptoUtils.getAESKey(aesConfiguration.getAesKeyBit());
-//		byte[] iv = CryptoUtils.getRandomNonce(aesConfiguration.getIvLengthByte());
-		String key = "Mary has one cat";
-		Key secretKey = new SecretKeySpec(key.getBytes(), "AES");
+		String passwordKey = PASSWORD_KEY.substring(0, 16);
+		Key secretKey = new SecretKeySpec(passwordKey.getBytes(), "AES");
 		Cipher cipher = Cipher.getInstance("AES");
-//		cipher.init(Cipher.ENCRYPT_MODE, secretKey, new GCMParameterSpec(aesConfiguration.getTagLengthByte(), iv));
 		cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
 		System.out.println("create inputStream");
@@ -56,7 +53,6 @@ public class EncryptorAesGcm {
 
 		System.out.println("create outputBytes");
 		byte[] outputBytes = cipher.doFinal(inputBytes);
-//		byte[] outputBytesWithIV = ByteBuffer.allocate(iv.length + outputBytes.length).put(iv).put(outputBytes).array();
 
 		System.out.println("create outputStream");
 		FileOutputStream outputStream = new FileOutputStream(outputFile);
@@ -69,25 +65,9 @@ public class EncryptorAesGcm {
 
 	public void decrypt(File inputFile, File outputFile) throws Exception {
 		System.out.println("start decrypt file");
-
-		
-
-		AesConfiguration aesConfiguration = aesConfigurationService.getAesConfigurationById(3);
-
-//		System.out.println("process byte buffer");
-//		ByteBuffer bb = ByteBuffer.wrap(inputBytes);
-//		byte[] iv = new byte[aesConfiguration.getIvLengthByte()];
-//		bb.get(iv);
-//		byte[] cipherText = new byte[bb.remaining()];
-//		bb.get(cipherText);
-
-		System.out.println("process chiper");
-		String key = "Mary has one cat";
-		Key secretKey = new SecretKeySpec(key.getBytes(), "AES");
+		String passwordKey = PASSWORD_KEY.substring(0, 16);
+		Key secretKey = new SecretKeySpec(passwordKey.getBytes(), "AES");
 		Cipher cipher = Cipher.getInstance("AES");
-//		SecretKey secretKey = CryptoUtils.getAESKey(aesConfiguration.getAesKeyBit());
-//		cipher.init(Cipher.DECRYPT_MODE, secretKey,
-//				new GCMParameterSpec(aesConfiguration.getTagLengthByte(), iv));
 		cipher.init(Cipher.DECRYPT_MODE, secretKey);
 
 		System.out.println("create inputStream");

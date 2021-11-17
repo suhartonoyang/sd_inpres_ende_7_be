@@ -33,8 +33,6 @@ public class AesConfiguration implements Serializable {
 	private int ivLengthByte;
 	@Column(name = "salt_length_byte", nullable = true, precision = 10)
 	private int saltLengthByte;
-	@Column(name = "aes_key_bit", nullable = true, precision = 10)
-	private int aesKeyBit;
 	@OneToMany(mappedBy = "aesConfiguration")
 	@JsonIgnore
 	private List<User> user;
@@ -132,14 +130,6 @@ public class AesConfiguration implements Serializable {
 	 */
 	public void setSaltLengthByte(int aSaltLengthByte) {
 		saltLengthByte = aSaltLengthByte;
-	}
-
-	public int getAesKeyBit() {
-		return aesKeyBit;
-	}
-
-	public void setAesKeyBit(int aesKeyBit) {
-		this.aesKeyBit = aesKeyBit;
 	}
 
 	/**
