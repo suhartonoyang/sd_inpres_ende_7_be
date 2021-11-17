@@ -1,8 +1,8 @@
 package co.id.sdinpresende7be.controller;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,64 +21,59 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.common.net.HttpHeaders;
 
 import co.id.sdinpresende7be.bean.Response;
-import co.id.sdinpresende7be.model.Profile;
-import co.id.sdinpresende7be.service.ProfileService;
-import io.swagger.annotations.ApiOperation;
+import co.id.sdinpresende7be.model.Event;
+import co.id.sdinpresende7be.service.EventService;
 
-@RequestMapping(value = "/api/profiles")
+@RequestMapping(value = "/api/events")
 @RestController
 @CrossOrigin
-public class ProfileController {
+public class EventController {
 
 	@Autowired
-	private ProfileService profileService;
+	private EventService eventService;
 
-	@ApiOperation(value = "for get all profiles")
 	@GetMapping
-	public ResponseEntity<Response> getAllProfiles() {
-		List<Profile> profiles = profileService.getAllProfiles();
+	public ResponseEntity<Response> getAllEvents() {
+		List<Event> events = eventService.getAllEvents();
 		Response response = new Response();
 		String code = String.valueOf(HttpStatus.OK.value());
 		String message = HttpStatus.OK.name();
 
-		if (profiles.isEmpty()) {
+		if (events.isEmpty()) {
 			code = String.valueOf(HttpStatus.NOT_FOUND.value());
 			message = "Data not found";
 		}
 
 		response.setCode(code);
 		response.setMessage(message);
-		response.setData(profiles);
+		response.setData(events);
 
 		return ResponseEntity.ok(response);
 	}
 
-	@ApiOperation(value = "for getting profile information by profile type")
-	@GetMapping("/{profileType}")
-	public ResponseEntity<Response> getProfileByProfileType(@PathVariable String profileType) {
-		Map<String, Object> map = profileService.getProfileByProfileType(profileType);
+	@GetMapping("/{id}")
+	public ResponseEntity<Response> getEventById(@PathVariable Integer id) {
+		Event event = eventService.getEventById(id);
 		Response response = new Response();
 		String code = String.valueOf(HttpStatus.OK.value());
 		String message = HttpStatus.OK.name();
 
-		if (map == null) {
+		if (event == null) {
 			code = String.valueOf(HttpStatus.NOT_FOUND.value());
 			message = "No Data Found";
 		}
 
 		response.setCode(code);
 		response.setMessage(message);
-		response.setData(Arrays.asList(map));
+		response.setData(Arrays.asList(event));
 
 		return ResponseEntity.ok(response);
 	}
 
-	@ApiOperation(value = "for get image of profile type")
-	@GetMapping("/{profileType}/image")
-	public ResponseEntity<?> getImage(@PathVariable String profileType) {
-		Profile profile = profileService.getProfileByProfileTypeNonMap(profileType);
-
-		if (profile == null) {
+	@GetMapping("/{id}/image")
+	public ResponseEntity<?> getImage(@PathVariable Integer id) {
+		Event event = eventService.getEventById(id);
+		if (event == null) {
 			Response response = new Response();
 			response.setCode(String.valueOf(HttpStatus.NOT_FOUND.value()));
 			response.setMessage("No Data Found");
@@ -86,43 +81,41 @@ public class ProfileController {
 		}
 
 		return ResponseEntity.ok()
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; " + "filename=\"" + profile.getFile().getName() + "\"")
-				.body(profile.getFile().getData());
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; " + "filename=\"" + event.getFile().getName() + "\"")
+				.body(event.getFile().getData());
 	}
 
-	@ApiOperation(value = "for save the profile", notes = "for parameter, just fill attributes based on mapping profile types. remember to empty the file attribute.")
 	@PostMapping
-	public ResponseEntity<Response> saveProfile(@RequestBody Profile profile) {
-		Profile newProfile = profileService.saveProfile(profile);
+	public ResponseEntity<Response> saveEvent(@RequestBody Event event) throws IOException {
+		Event newEvent = eventService.saveEvent(event);
 		Response resp = new Response();
 
-		if (newProfile != null) {
+		if (newEvent != null) {
 			resp.setCode(String.valueOf(HttpStatus.CREATED.value()));
-			resp.setMessage("Sucessfully Save " + profile.getProfileType());
-			resp.setData(Arrays.asList(newProfile));
+			resp.setMessage("Sucessfully Save");
+			resp.setData(Arrays.asList(newEvent));
 		}
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(resp);
 	}
 
-	@ApiOperation(value = "for upload the image of profile type", notes="after call save, call this to upload the image.")
-	@PostMapping("/{profileType}/upload")
-	public ResponseEntity<Response> uploadImage(@PathVariable String profileType, @RequestParam MultipartFile file) throws Exception {
-		Map<String, Object> map = profileService.uploadImage(profileType, file);
+	@PostMapping("/{id}/upload")
+	public ResponseEntity<Response> uploadImage(@PathVariable Integer id, @RequestParam MultipartFile file) throws Exception {
+		Event updateEvent = eventService.uploadImage(id, file);
 		Response resp = new Response();
 
-		if (map != null) {
+		if (updateEvent != null) {
 			resp.setCode(String.valueOf(HttpStatus.CREATED.value()));
 			resp.setMessage("Sucessfully Save");
-			resp.setData(Arrays.asList(map));
+			resp.setData(Arrays.asList(updateEvent));
 		}
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(resp);
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Response> deleteProfileById(@PathVariable Integer id) {
-		profileService.deleteProfileById(id);
+	public ResponseEntity<Response> deleteEventById(@PathVariable Integer id) {
+		eventService.deleteEventById(id);
 		Response resp = new Response();
 		resp.setCode(String.valueOf(HttpStatus.OK.value()));
 		resp.setMessage("Sucessfully Delete");

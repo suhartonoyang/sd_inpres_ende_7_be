@@ -11,23 +11,16 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Setter @Getter
-@Entity
-@Table(name = "profile", indexes = { @Index(name = "profile_profile_type_IX", columnList = "profile_type", unique = true) })
-public class Profile implements Serializable {
+@Entity(name = "event")
+public class Event implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -35,15 +28,10 @@ public class Profile implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(unique = true, nullable = false, precision = 10)
 	private int id;
-	@Column(name = "profile_type", unique = true, nullable = false, length = 255)
-	private String profileType;
-	@Column(length = 255)
+	@Column(nullable = false, length = 255)
 	private String title;
+	@Column(nullable = false)
 	private String description;
-	private String vision;
-	private String mission;
-	@Column(length = 255)
-	private String category;
 	@Column(name = "created_by", nullable = false, length = 255)
 	private String createdBy;
 	@Column(name = "created_date", nullable = false)
@@ -56,16 +44,16 @@ public class Profile implements Serializable {
 	@JoinColumn(name = "file_id")
 	@JsonIgnore
 	private File file;
-	
+
 	@Transient
 	private String imageUrl;
 
 	public String getImageUrl() {
-		return ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/gallery/" + this.id + "/image").toUriString();
+		return ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/events/" + this.id + "/image").toUriString();
 	}
 
 	/** Default constructor. */
-	public Profile() {
+	public Event() {
 		super();
 	}
 
@@ -85,24 +73,6 @@ public class Profile implements Serializable {
 	 */
 	public void setId(int aId) {
 		id = aId;
-	}
-
-	/**
-	 * Access method for profileType.
-	 *
-	 * @return the current value of profileType
-	 */
-	public String getProfileType() {
-		return profileType;
-	}
-
-	/**
-	 * Setter method for profileType.
-	 *
-	 * @param aProfileType the new value for profileType
-	 */
-	public void setProfileType(String aProfileType) {
-		profileType = aProfileType;
 	}
 
 	/**
@@ -139,60 +109,6 @@ public class Profile implements Serializable {
 	 */
 	public void setDescription(String aDescription) {
 		description = aDescription;
-	}
-
-	/**
-	 * Access method for vision.
-	 *
-	 * @return the current value of vision
-	 */
-	public String getVision() {
-		return vision;
-	}
-
-	/**
-	 * Setter method for vision.
-	 *
-	 * @param aVision the new value for vision
-	 */
-	public void setVision(String aVision) {
-		vision = aVision;
-	}
-
-	/**
-	 * Access method for mission.
-	 *
-	 * @return the current value of mission
-	 */
-	public String getMission() {
-		return mission;
-	}
-
-	/**
-	 * Setter method for mission.
-	 *
-	 * @param aMission the new value for mission
-	 */
-	public void setMission(String aMission) {
-		mission = aMission;
-	}
-
-	/**
-	 * Access method for category.
-	 *
-	 * @return the current value of category
-	 */
-	public String getCategory() {
-		return category;
-	}
-
-	/**
-	 * Setter method for category.
-	 *
-	 * @param aCategory the new value for category
-	 */
-	public void setCategory(String aCategory) {
-		category = aCategory;
 	}
 
 	/**
@@ -268,20 +184,38 @@ public class Profile implements Serializable {
 	}
 
 	/**
-	 * Compares the key for this instance with another Profile.
+	 * Access method for file.
+	 *
+	 * @return the current value of file
+	 */
+	public File getFile() {
+		return file;
+	}
+
+	/**
+	 * Setter method for file.
+	 *
+	 * @param aFile the new value for file
+	 */
+	public void setFile(File aFile) {
+		file = aFile;
+	}
+
+	/**
+	 * Compares the key for this instance with another Event.
 	 *
 	 * @param other The object to compare to
-	 * @return True if other object is instance of class Profile and the key objects
+	 * @return True if other object is instance of class Event and the key objects
 	 *         are equal
 	 */
 	private boolean equalKeys(Object other) {
 		if (this == other) {
 			return true;
 		}
-		if (!(other instanceof Profile)) {
+		if (!(other instanceof Event)) {
 			return false;
 		}
-		Profile that = (Profile) other;
+		Event that = (Event) other;
 		if (this.getId() != that.getId()) {
 			return false;
 		}
@@ -289,16 +223,16 @@ public class Profile implements Serializable {
 	}
 
 	/**
-	 * Compares this instance with another Profile.
+	 * Compares this instance with another Event.
 	 *
 	 * @param other The object to compare to
 	 * @return True if the objects are the same
 	 */
 	@Override
 	public boolean equals(Object other) {
-		if (!(other instanceof Profile))
+		if (!(other instanceof Event))
 			return false;
-		return this.equalKeys(other) && ((Profile) other).equalKeys(this);
+		return this.equalKeys(other) && ((Event) other).equalKeys(this);
 	}
 
 	/**
@@ -317,9 +251,8 @@ public class Profile implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Profile [id=" + id + ", profileType=" + profileType + ", title=" + title + ", description=" + description + ", vision="
-				+ vision + ", mission=" + mission + ", category=" + category + ", createdBy=" + createdBy + ", createdDate=" + createdDate
-				+ ", modifiedBy=" + modifiedBy + ", modifiedDate=" + modifiedDate + ", file=" + file + "]";
+		return "Event [id=" + id + ", title=" + title + ", description=" + description + ", createdBy=" + createdBy + ", createdDate="
+				+ createdDate + ", modifiedBy=" + modifiedBy + ", modifiedDate=" + modifiedDate + ", file=" + file + "]";
 	}
 
 }

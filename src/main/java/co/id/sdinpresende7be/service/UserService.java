@@ -3,6 +3,7 @@ package co.id.sdinpresende7be.service;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,18 +35,31 @@ public class UserService {
 		return userRepo.findByUsername(username);
 	}
 
-	public User register(String username, String password) throws Exception {
+	public User register(User user) throws Exception {
+		User newUser = new User();
+		User existingUser = getUserById(user.getId());
+		if (existingUser == null) {
+			newUser.setCreatedBy(user.getCreatedBy());
+			newUser.setCreatedDate(new Date());
+		} else {
+			newUser.setId(existingUser.getId());
+			newUser.setCreatedBy(existingUser.getCreatedBy());
+			newUser.setCreatedDate(existingUser.getCreatedDate());
+			newUser.setModifiedBy(user.getCreatedBy());
+			newUser.setModifiedDate(new Date());
+		}
+
 		AesConfiguration aesConfiguration = aesConfigurationService.getAesConfigurationById(1);
-		String encryptedPassword = encryptor.encrypt(password.getBytes(UTF_8), PASSWORD_KEY, aesConfiguration);
-		System.out.println("encryptedPassword: " + encryptedPassword);
-		User user = new User();
-		user.setCreatedBy("Admin");
-		user.setCreatedDate(new Date());
-		user.setUsername(username);
-		user.setPassword(encryptedPassword);
-		user.setPasswordKey(PASSWORD_KEY);
-		user.setAesConfiguration(aesConfiguration);
-		return userRepo.save(user);
+		String encryptedPassword = encryptor.encrypt(user.getPassword().getBytes(UTF_8), PASSWORD_KEY, aesConfiguration);
+
+		newUser.setUsername(user.getUsername());
+		newUser.setPassword(encryptedPassword);
+		newUser.setPasswordKey(PASSWORD_KEY);
+		newUser.setAesConfiguration(aesConfiguration);
+		newUser.setRole(user.getRole().toUpperCase());
+		newUser.setName(user.getName());
+
+		return userRepo.save(newUser);
 	}
 
 	public User login(String username, String password) throws Exception {
@@ -65,6 +79,18 @@ public class UserService {
 			return null;
 
 		return user;
+	}
+
+	public List<User> getAllTeachers() {
+		return userRepo.findByRole("teacher");
+	}
+
+	public User getUserById(Integer id) {
+		return userRepo.findById(id).orElse(null);
+	}
+
+	public void deleteUserById(Integer id) {
+		userRepo.deleteById(id);
 	}
 
 }

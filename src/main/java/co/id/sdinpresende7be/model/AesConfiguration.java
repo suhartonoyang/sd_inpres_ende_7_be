@@ -5,22 +5,22 @@ package co.id.sdinpresende7be.model;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity(name = "aes_configuration")
 public class AesConfiguration implements Serializable {
 
+	/**
+	 * 
+	 */
 	private static final long serialVersionUID = 1L;
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(unique = true, nullable = false, precision = 10)
@@ -31,11 +31,13 @@ public class AesConfiguration implements Serializable {
 	private int tagLengthByte;
 	@Column(name = "iv_length_byte", nullable = false, precision = 10)
 	private int ivLengthByte;
-	@Column(name = "salt_length_byte", nullable = false, precision = 10)
+	@Column(name = "salt_length_byte", nullable = true, precision = 10)
 	private int saltLengthByte;
-	@JsonIgnoreProperties(value = { "aesConfiguration"})
+	@Column(name = "aes_key_bit", nullable = true, precision = 10)
+	private int aesKeyBit;
 	@OneToMany(mappedBy = "aesConfiguration")
-	private List<User> users;
+	@JsonIgnore
+	private List<User> user;
 
 	/** Default constructor. */
 	public AesConfiguration() {
@@ -52,7 +54,7 @@ public class AesConfiguration implements Serializable {
 	}
 
 	/**
-	 * Setter method for id.
+	 * Listter method for id.
 	 *
 	 * @param aId the new value for id
 	 */
@@ -70,7 +72,7 @@ public class AesConfiguration implements Serializable {
 	}
 
 	/**
-	 * Setter method for encryptAlgo.
+	 * Listter method for encryptAlgo.
 	 *
 	 * @param aEncryptAlgo the new value for encryptAlgo
 	 */
@@ -88,7 +90,7 @@ public class AesConfiguration implements Serializable {
 	}
 
 	/**
-	 * Setter method for tagLengthByte.
+	 * Listter method for tagLengthByte.
 	 *
 	 * @param aTagLengthByte the new value for tagLengthByte
 	 */
@@ -106,7 +108,7 @@ public class AesConfiguration implements Serializable {
 	}
 
 	/**
-	 * Setter method for ivLengthByte.
+	 * Listter method for ivLengthByte.
 	 *
 	 * @param aIvLengthByte the new value for ivLengthByte
 	 */
@@ -124,12 +126,20 @@ public class AesConfiguration implements Serializable {
 	}
 
 	/**
-	 * Setter method for saltLengthByte.
+	 * Listter method for saltLengthByte.
 	 *
 	 * @param aSaltLengthByte the new value for saltLengthByte
 	 */
 	public void setSaltLengthByte(int aSaltLengthByte) {
 		saltLengthByte = aSaltLengthByte;
+	}
+
+	public int getAesKeyBit() {
+		return aesKeyBit;
+	}
+
+	public void setAesKeyBit(int aesKeyBit) {
+		this.aesKeyBit = aesKeyBit;
 	}
 
 	/**
@@ -138,16 +148,16 @@ public class AesConfiguration implements Serializable {
 	 * @return the current value of user
 	 */
 	public List<User> getUser() {
-		return users;
+		return user;
 	}
 
 	/**
-	 * Setter method for user.
+	 * Listter method for user.
 	 *
 	 * @param aUser the new value for user
 	 */
-	public void setUser(List<User> aUsers) {
-		users = aUsers;
+	public void setUser(List<User> aUser) {
+		user = aUser;
 	}
 
 	/**
@@ -201,7 +211,7 @@ public class AesConfiguration implements Serializable {
 	@Override
 	public String toString() {
 		return "AesConfiguration [id=" + id + ", encryptAlgo=" + encryptAlgo + ", tagLengthByte=" + tagLengthByte + ", ivLengthByte="
-				+ ivLengthByte + ", saltLengthByte=" + saltLengthByte + ", users=" + users + "]";
+				+ ivLengthByte + ", saltLengthByte=" + saltLengthByte + ", user=" + user + "]";
 	}
 
 }

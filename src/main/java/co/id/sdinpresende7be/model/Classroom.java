@@ -17,12 +17,14 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Where;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
-@Table(name = "user", indexes = { @Index(name = "user_idx01", columnList = "username", unique = true) })
-public class User implements Serializable {
+@Table(name = "classroom", indexes = { @Index(name = "u_01", columnList = "name", unique = true) })
+public class Classroom implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -31,15 +33,7 @@ public class User implements Serializable {
 	@Column(unique = true, nullable = false, precision = 10)
 	private int id;
 	@Column(unique = true, nullable = false, length = 255)
-	private String username;
-	@Column(nullable = false, length = 255)
-	private String password;
-	@Column(length = 255)
 	private String name;
-	@Column(nullable = false, length = 255)
-	private String role;
-	@Column(name = "password_key", nullable = false, length = 255)
-	private String passwordKey;
 	@Column(name = "created_by", nullable = false, length = 255)
 	private String createdBy;
 	@Column(name = "created_date", nullable = false)
@@ -48,25 +42,17 @@ public class User implements Serializable {
 	private String modifiedBy;
 	@Column(name = "modified_date")
 	private Date modifiedDate;
-	@OneToMany(mappedBy = "teacher")
-	@JsonIgnoreProperties(value = "user")
-	@JsonIgnore
-	private List<Classroom> classroom;
-	@OneToMany(mappedBy = "teacher")
-	@JsonIgnoreProperties(value = "teacher")
-	@JsonIgnore
-	private List<Student> student;
-	@OneToMany(mappedBy = "teacher")
-	@JsonIgnoreProperties(value = "teacher")
-	@JsonIgnore
-	private List<SubjectClassroom> subjectClassroom;
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "aes_configuration_id", nullable = false)
-	@JsonIgnoreProperties(value = "user")
-	private AesConfiguration aesConfiguration;
+	@JoinColumn(name = "teacher_id", nullable = false)
+	@Where(clause = "role = TEACHER")
+	@JsonIgnoreProperties(value = "classroom")
+	private User teacher;
+	@OneToMany(mappedBy = "classroom")
+	@JsonIgnoreProperties(value = "classroom")
+	private List<SubjectClassroom> subjectClassroom;
 
 	/** Default constructor. */
-	public User() {
+	public Classroom() {
 		super();
 	}
 
@@ -89,42 +75,6 @@ public class User implements Serializable {
 	}
 
 	/**
-	 * Access method for username.
-	 *
-	 * @return the current value of username
-	 */
-	public String getUsername() {
-		return username;
-	}
-
-	/**
-	 * Setter method for username.
-	 *
-	 * @param aUsername the new value for username
-	 */
-	public void setUsername(String aUsername) {
-		username = aUsername;
-	}
-
-	/**
-	 * Access method for password.
-	 *
-	 * @return the current value of password
-	 */
-	public String getPassword() {
-		return password;
-	}
-
-	/**
-	 * Setter method for password.
-	 *
-	 * @param aPassword the new value for password
-	 */
-	public void setPassword(String aPassword) {
-		password = aPassword;
-	}
-
-	/**
 	 * Access method for name.
 	 *
 	 * @return the current value of name
@@ -140,42 +90,6 @@ public class User implements Serializable {
 	 */
 	public void setName(String aName) {
 		name = aName;
-	}
-
-	/**
-	 * Access method for role.
-	 *
-	 * @return the current value of role
-	 */
-	public String getRole() {
-		return role;
-	}
-
-	/**
-	 * Setter method for role.
-	 *
-	 * @param aRole the new value for role
-	 */
-	public void setRole(String aRole) {
-		role = aRole;
-	}
-
-	/**
-	 * Access method for passwordKey.
-	 *
-	 * @return the current value of passwordKey
-	 */
-	public String getPasswordKey() {
-		return passwordKey;
-	}
-
-	/**
-	 * Setter method for passwordKey.
-	 *
-	 * @param aPasswordKey the new value for passwordKey
-	 */
-	public void setPasswordKey(String aPasswordKey) {
-		passwordKey = aPasswordKey;
 	}
 
 	/**
@@ -251,39 +165,21 @@ public class User implements Serializable {
 	}
 
 	/**
-	 * Access method for classroom.
+	 * Access method for user.
 	 *
-	 * @return the current value of classroom
+	 * @return the current value of user
 	 */
-	public List<Classroom> getClassroom() {
-		return classroom;
+	public User getTeacher() {
+		return teacher;
 	}
 
 	/**
-	 * Setter method for classroom.
+	 * Setter method for user.
 	 *
-	 * @param aClassroom the new value for classroom
+	 * @param aUser the new value for user
 	 */
-	public void setClassroom(List<Classroom> aClassroom) {
-		classroom = aClassroom;
-	}
-
-	/**
-	 * Access method for student.
-	 *
-	 * @return the current value of student
-	 */
-	public List<Student> getStudent() {
-		return student;
-	}
-
-	/**
-	 * Setter method for student.
-	 *
-	 * @param aStudent the new value for student
-	 */
-	public void setStudent(List<Student> aStudent) {
-		student = aStudent;
+	public void setTeacher(User aTeacher) {
+		teacher = aTeacher;
 	}
 
 	/**
@@ -305,38 +201,20 @@ public class User implements Serializable {
 	}
 
 	/**
-	 * Access method for aesConfiguration.
-	 *
-	 * @return the current value of aesConfiguration
-	 */
-	public AesConfiguration getAesConfiguration() {
-		return aesConfiguration;
-	}
-
-	/**
-	 * Setter method for aesConfiguration.
-	 *
-	 * @param aAesConfiguration the new value for aesConfiguration
-	 */
-	public void setAesConfiguration(AesConfiguration aAesConfiguration) {
-		aesConfiguration = aAesConfiguration;
-	}
-
-	/**
-	 * Compares the key for this instance with another User.
+	 * Compares the key for this instance with another Classroom.
 	 *
 	 * @param other The object to compare to
-	 * @return True if other object is instance of class User and the key objects
-	 *         are equal
+	 * @return True if other object is instance of class Classroom and the key
+	 *         objects are equal
 	 */
 	private boolean equalKeys(Object other) {
 		if (this == other) {
 			return true;
 		}
-		if (!(other instanceof User)) {
+		if (!(other instanceof Classroom)) {
 			return false;
 		}
-		User that = (User) other;
+		Classroom that = (Classroom) other;
 		if (this.getId() != that.getId()) {
 			return false;
 		}
@@ -344,16 +222,16 @@ public class User implements Serializable {
 	}
 
 	/**
-	 * Compares this instance with another User.
+	 * Compares this instance with another Classroom.
 	 *
 	 * @param other The object to compare to
 	 * @return True if the objects are the same
 	 */
 	@Override
 	public boolean equals(Object other) {
-		if (!(other instanceof User))
+		if (!(other instanceof Classroom))
 			return false;
-		return this.equalKeys(other) && ((User) other).equalKeys(this);
+		return this.equalKeys(other) && ((Classroom) other).equalKeys(this);
 	}
 
 	/**
@@ -372,10 +250,8 @@ public class User implements Serializable {
 
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", username=" + username + ", password=" + password + ", name=" + name + ", role=" + role
-				+ ", passwordKey=" + passwordKey + ", createdBy=" + createdBy + ", createdDate=" + createdDate + ", modifiedBy="
-				+ modifiedBy + ", modifiedDate=" + modifiedDate + ", classroom=" + classroom + ", student=" + student
-				+ ", subjectClassroom=" + subjectClassroom + ", aesConfiguration=" + aesConfiguration + "]";
+		return "Classroom [id=" + id + ", name=" + name + ", createdBy=" + createdBy + ", createdDate=" + createdDate + ", modifiedBy="
+				+ modifiedBy + ", modifiedDate=" + modifiedDate + ", teacher=" + teacher + ", subjectClassroom=" + subjectClassroom + "]";
 	}
 
 }
