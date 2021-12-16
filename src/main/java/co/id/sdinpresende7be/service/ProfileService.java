@@ -72,6 +72,7 @@ public class ProfileService {
 
 		profileMap.remove("ImageUrl");
 		profileMap.put("ImageUrl", profile.getImageUrl());
+		profileMap.put("ImageName", profile.getFile().getName());
 
 		return profileMap;
 	}
@@ -88,7 +89,9 @@ public class ProfileService {
 		case "Tentang Kami":
 			map.put("Title", profile.getTitle());
 			map.put("ImageUrl", profile.getImageUrl());
-			map.put("ImageName", profile.getFile().getName());
+			if (profile.getFile() != null) {
+				map.put("ImageName", profile.getFile().getName());
+			}
 			break;
 		case "Visi & Misi":
 			map.put("Visi", profile.getVision());

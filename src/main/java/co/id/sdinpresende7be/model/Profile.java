@@ -24,7 +24,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter @Getter
+@Setter
+@Getter
 @Entity
 @Table(name = "profile", indexes = { @Index(name = "profile_profile_type_IX", columnList = "profile_type", unique = true) })
 public class Profile implements Serializable {
@@ -56,12 +57,12 @@ public class Profile implements Serializable {
 	@JoinColumn(name = "file_id")
 	@JsonIgnore
 	private File file;
-	
+
 	@Transient
 	private String imageUrl;
 
 	public String getImageUrl() {
-		return ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/gallery/" + this.id + "/image").toUriString();
+		return ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/profiles/" + this.profileType + "/image").toUriString();
 	}
 
 	/** Default constructor. */

@@ -52,7 +52,7 @@ public class Gallery implements Serializable {
 	private String imageUrl;
 
 	public String getImageUrl() {
-		return ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/gallery/" + this.id + "/image").toUriString();
+		return ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/galleries/" + this.id + "/image").toUriString();
 	}
 
 	/** Default constructor. */

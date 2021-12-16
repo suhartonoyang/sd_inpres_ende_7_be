@@ -23,7 +23,7 @@ import co.id.sdinpresende7be.bean.Response;
 import co.id.sdinpresende7be.model.Gallery;
 import co.id.sdinpresende7be.service.GalleryService;
 
-@RequestMapping(value = "/api/gallery")
+@RequestMapping(value = "/api/galleries")
 @RestController
 @CrossOrigin
 public class GalleryController {
