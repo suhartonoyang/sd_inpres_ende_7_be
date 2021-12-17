@@ -88,6 +88,7 @@ public class ProfileService {
 		switch (profileType) {
 		case "Tentang Kami":
 			map.put("Title", profile.getTitle());
+			map.put("Description", profile.getDescription());
 			map.put("ImageUrl", profile.getImageUrl());
 			if (profile.getFile() != null) {
 				map.put("ImageName", profile.getFile().getName());
