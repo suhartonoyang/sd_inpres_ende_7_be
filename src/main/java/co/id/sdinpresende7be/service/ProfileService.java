@@ -1,5 +1,6 @@
 package co.id.sdinpresende7be.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,15 +31,18 @@ public class ProfileService {
 		Profile newProfile = new Profile();
 
 		// check profile sudah ada belum
-		Profile existingProfile = profileRepo.findByProfileType(profile.getProfileType());
+		Profile existingProfile = null;
+		if (profile.getProfileType().equalsIgnoreCase("fasilitas") || profile.getProfileType().equalsIgnoreCase("prestasi")) {
+			existingProfile = getProfileById(profile.getId());
+		} else {
+			existingProfile = getProfileByProfileTypeNonMap(profile.getProfileType());
+		}
+
 		if (existingProfile == null) {
 			newProfile.setCreatedBy(profile.getCreatedBy());
 			newProfile.setCreatedDate(new Date());
 		} else {
-			if (!existingProfile.getProfileType().equalsIgnoreCase("fasilitas")
-					&& !existingProfile.getProfileType().equalsIgnoreCase("prestasi")) {
-				newProfile.setId(existingProfile.getId());
-			}
+			newProfile.setId(existingProfile.getId());
 			newProfile.setCreatedBy(existingProfile.getCreatedBy());
 			newProfile.setCreatedDate(existingProfile.getCreatedDate());
 			newProfile.setModifiedBy(profile.getCreatedBy());
@@ -56,14 +60,15 @@ public class ProfileService {
 	}
 
 	public Map<String, Object> uploadImage(String profileType, MultipartFile file) throws Exception {
-		Map<String, Object> profileMap = getProfileByProfileType(profileType);
-		if (profileMap == null || profileMap.isEmpty()) {
-			throw new Exception("Data not found");
-		} else if (!profileMap.isEmpty() && !profileMap.containsKey("ImageUrl")) {
+		if (!profileType.equalsIgnoreCase("tentang kami")) {
 			throw new Exception("This profile type does not need image");
 		}
 
-		Profile profile = profileRepo.findByProfileType(profileType);
+		Profile profile = getProfileByProfileTypeNonMap(profileType);
+		if (profile == null) {
+			throw new Exception("Data not found");
+		}
+
 		File newFile = new File();
 		newFile.setName(StringUtils.cleanPath(file.getOriginalFilename()));
 		newFile.setType(file.getContentType());
@@ -73,61 +78,123 @@ public class ProfileService {
 		profile.setFile(newFile);
 		profileRepo.save(profile);
 
-		profileMap.remove("ImageUrl");
+		Map<String, Object> profileMap = new HashMap<String, Object>();
+
+		profileMap.put("Title", profile.getTitle());
+		profileMap.put("Description", profile.getDescription());
 		profileMap.put("ImageUrl", profile.getImageUrl());
-		profileMap.put("ImageName", profile.getFile().getName());
+		if (profile.getFile() != null) {
+			profileMap.put("ImageName", profile.getFile().getName());
+		}
 
 		return profileMap;
 	}
 
 	public Profile getProfileByProfileTypeNonMap(String profileType) {
-		return profileRepo.findByProfileType(profileType);
+		return profileRepo.findByProfileType(profileType).stream().findFirst().orElse(null);
 	}
 
-	public Map<String, Object> getProfileByProfileType(String profileType) {
-		Profile profile = profileRepo.findByProfileType(profileType);
-
-		Map<String, Object> map = new HashMap<String, Object>();
-		switch (profileType) {
-		case "Tentang Kami":
-			map.put("Title", profile.getTitle());
-			map.put("Description", profile.getDescription());
-			map.put("ImageUrl", profile.getImageUrl());
-			if (profile.getFile() != null) {
-				map.put("ImageName", profile.getFile().getName());
-			}
-			break;
-		case "Visi & Misi":
-			map.put("Visi", profile.getVision());
-			map.put("Misi", profile.getMission());
-			break;
-		case "Fasilitas":
-			map.put("Title", profile.getTitle());
-			Date inputDate = profile.getCreatedDate();
-			if (profile.getModifiedDate() != null) {
-				inputDate = profile.getCreatedDate();
-			}
-			map.put("Input Date", inputDate);
-			break;
-		case "Tata Tertib":
-			map.put("Title", profile.getTitle());
-			map.put("Description", profile.getDescription());
-			break;
-		case "Prestasi":
-			map.put("Title", profile.getTitle());
-			map.put("Category", profile.getCategory());
-			Date inputDate1 = profile.getCreatedDate();
-			if (profile.getModifiedDate() != null) {
-				inputDate1 = profile.getCreatedDate();
-			}
-			map.put("Input Date", inputDate1);
-			break;
-		default:
-			return null;
-		}
-
-		return map;
+	public Profile getProfileById(Integer id) {
+		return profileRepo.findById(id).orElse(null);
 	}
+
+	public List<Map<String, Object>> getProfilesByProfileType(String profileType) {
+		List<Profile> profiles = profileRepo.findByProfileType(profileType);
+		List<Map<String, Object>> maps = new ArrayList<Map<String, Object>>();
+		profiles.stream().forEach(profile -> {
+			System.out.println("masuk sini");
+			System.out.println(profile);
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("id", profile.getId());
+			switch (profileType) {
+			case "Tentang Kami":
+				map.put("Title", profile.getTitle());
+				map.put("Description", profile.getDescription());
+				map.put("ImageUrl", profile.getImageUrl());
+				if (profile.getFile() != null) {
+					map.put("ImageName", profile.getFile().getName());
+				}
+				break;
+			case "Visi & Misi":
+				map.put("Visi", profile.getVision());
+				map.put("Misi", profile.getMission());
+				break;
+			case "Fasilitas":
+				map.put("Title", profile.getTitle());
+				Date inputDate = profile.getCreatedDate();
+				if (profile.getModifiedDate() != null) {
+					inputDate = profile.getCreatedDate();
+				}
+				map.put("Input Date", inputDate);
+				break;
+			case "Tata Tertib":
+				map.put("Title", profile.getTitle());
+				map.put("Description", profile.getDescription());
+				break;
+			case "Prestasi":
+				map.put("Title", profile.getTitle());
+				map.put("Category", profile.getCategory());
+				Date inputDate1 = profile.getCreatedDate();
+				if (profile.getModifiedDate() != null) {
+					inputDate1 = profile.getCreatedDate();
+				}
+				map.put("Input Date", inputDate1);
+				break;
+			default:
+				break;
+			}
+			
+			maps.add(map);
+		});
+
+		return maps;
+
+	}
+
+//	public Map<String, Object> getProfileByProfileType(String profileType) {
+//		Profile profile = getProfileByProfileTypeNonMap(profileType);
+//
+//		Map<String, Object> map = new HashMap<String, Object>();
+//		switch (profileType) {
+//		case "Tentang Kami":
+//			map.put("Title", profile.getTitle());
+//			map.put("Description", profile.getDescription());
+//			map.put("ImageUrl", profile.getImageUrl());
+//			if (profile.getFile() != null) {
+//				map.put("ImageName", profile.getFile().getName());
+//			}
+//			break;
+//		case "Visi & Misi":
+//			map.put("Visi", profile.getVision());
+//			map.put("Misi", profile.getMission());
+//			break;
+//		case "Fasilitas":
+//			map.put("Title", profile.getTitle());
+//			Date inputDate = profile.getCreatedDate();
+//			if (profile.getModifiedDate() != null) {
+//				inputDate = profile.getCreatedDate();
+//			}
+//			map.put("Input Date", inputDate);
+//			break;
+//		case "Tata Tertib":
+//			map.put("Title", profile.getTitle());
+//			map.put("Description", profile.getDescription());
+//			break;
+//		case "Prestasi":
+//			map.put("Title", profile.getTitle());
+//			map.put("Category", profile.getCategory());
+//			Date inputDate1 = profile.getCreatedDate();
+//			if (profile.getModifiedDate() != null) {
+//				inputDate1 = profile.getCreatedDate();
+//			}
+//			map.put("Input Date", inputDate1);
+//			break;
+//		default:
+//			return null;
+//		}
+//
+//		return map;
+//	}
 
 	public void deleteProfileById(Integer id) {
 		profileRepo.deleteById(id);

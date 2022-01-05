@@ -52,11 +52,31 @@ public class ProfileController {
 
 		return ResponseEntity.ok(response);
 	}
+	
+	@ApiOperation(value = "for getting profile information by id")
+	@GetMapping("/{id}")
+	public ResponseEntity<Response> getProfileById(@PathVariable Integer id) {
+		Profile profile = profileService.getProfileById(id);
+		Response response = new Response();
+		String code = String.valueOf(HttpStatus.OK.value());
+		String message = HttpStatus.OK.name();
 
-	@ApiOperation(value = "for getting profile information by profile type")
-	@GetMapping("/{profileType}")
+		if (profile == null) {
+			code = String.valueOf(HttpStatus.NOT_FOUND.value());
+			message = "No Data Found";
+		}
+
+		response.setCode(code);
+		response.setMessage(message);
+		response.setData(Arrays.asList(profile));
+
+		return ResponseEntity.ok(response);
+	}
+
+	@ApiOperation(value = "for getting profile information by profile type beside fasilitas and prestasi")
+	@GetMapping("/profileType/{profileType}")
 	public ResponseEntity<Response> getProfileByProfileType(@PathVariable String profileType) {
-		Map<String, Object> map = profileService.getProfileByProfileType(profileType);
+		List<Map<String, Object>> map = profileService.getProfilesByProfileType(profileType);
 		Response response = new Response();
 		String code = String.valueOf(HttpStatus.OK.value());
 		String message = HttpStatus.OK.name();
@@ -72,12 +92,11 @@ public class ProfileController {
 
 		return ResponseEntity.ok(response);
 	}
-
-	@ApiOperation(value = "for get image of profile type")
+	
+	@ApiOperation(value = "for get image of profile type (Tentang Kami)")
 	@GetMapping("/{profileType}/image")
 	public ResponseEntity<?> getImage(@PathVariable String profileType) {
 		Profile profile = profileService.getProfileByProfileTypeNonMap(profileType);
-
 		if (profile == null) {
 			Response response = new Response();
 			response.setCode(String.valueOf(HttpStatus.NOT_FOUND.value()));
@@ -105,7 +124,7 @@ public class ProfileController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(resp);
 	}
 
-	@ApiOperation(value = "for upload the image of profile type", notes="after call save, call this to upload the image.")
+	@ApiOperation(value = "for upload the image of profile type (Tentang Kami)", notes = "after call save, call this to upload the image.")
 	@PostMapping("/{profileType}/upload")
 	public ResponseEntity<Response> uploadImage(@PathVariable String profileType, @RequestParam MultipartFile file) throws Exception {
 		Map<String, Object> map = profileService.uploadImage(profileType, file);
