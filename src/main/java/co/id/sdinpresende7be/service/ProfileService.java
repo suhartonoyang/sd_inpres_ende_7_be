@@ -35,7 +35,10 @@ public class ProfileService {
 			newProfile.setCreatedBy(profile.getCreatedBy());
 			newProfile.setCreatedDate(new Date());
 		} else {
-			newProfile.setId(existingProfile.getId());
+			if (!existingProfile.getProfileType().equalsIgnoreCase("fasilitas")
+					&& !existingProfile.getProfileType().equalsIgnoreCase("prestasi")) {
+				newProfile.setId(existingProfile.getId());
+			}
 			newProfile.setCreatedBy(existingProfile.getCreatedBy());
 			newProfile.setCreatedDate(existingProfile.getCreatedDate());
 			newProfile.setModifiedBy(profile.getCreatedBy());

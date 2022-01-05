@@ -62,7 +62,10 @@ public class Profile implements Serializable {
 	private String imageUrl;
 
 	public String getImageUrl() {
-		return ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/profiles/" + this.profileType + "/image").toUriString();
+		if (profileType.equalsIgnoreCase("Tentang Kami")) {
+			return ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/profiles/" + this.profileType + "/image").toUriString();
+		}
+		return null;
 	}
 
 	/** Default constructor. */
