@@ -51,6 +51,13 @@ public class Event implements Serializable {
 	public String getImageUrl() {
 		return ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/events/" + this.id + "/image").toUriString();
 	}
+	
+	@Transient
+	private String imageName;
+	
+	public String getImageName() {
+		return this.file.getName();
+	}
 
 	/** Default constructor. */
 	public Event() {

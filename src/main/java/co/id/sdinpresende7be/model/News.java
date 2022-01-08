@@ -56,6 +56,13 @@ public class News implements Serializable {
 		return ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/gallery/" + this.id + "/image").toUriString();
 	}
 
+	@Transient
+	private String imageName;
+	
+	public String getImageName() {
+		return this.file.getName();
+	}
+
 	/** Default constructor. */
 	public News() {
 		super();
