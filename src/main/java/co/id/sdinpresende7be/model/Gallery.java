@@ -59,7 +59,10 @@ public class Gallery implements Serializable {
 	private String imageName;
 	
 	public String getImageName() {
-		return this.file.getName();
+		if (this.file!=null) {
+			return this.file.getName();
+		}
+		return null;
 	}
 
 	/** Default constructor. */

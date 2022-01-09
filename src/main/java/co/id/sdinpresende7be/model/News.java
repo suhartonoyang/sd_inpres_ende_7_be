@@ -22,7 +22,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter @Getter
+@Setter
+@Getter
 @Entity(name = "news")
 public class News implements Serializable {
 
@@ -48,7 +49,7 @@ public class News implements Serializable {
 	@JoinColumn(name = "file_id")
 	@JsonIgnore
 	private File file;
-	
+
 	@Transient
 	private String imageUrl;
 
@@ -58,9 +59,12 @@ public class News implements Serializable {
 
 	@Transient
 	private String imageName;
-	
+
 	public String getImageName() {
-		return this.file.getName();
+		if (this.file!=null) {
+			return this.file.getName();
+		}
+		return null;
 	}
 
 	/** Default constructor. */
