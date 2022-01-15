@@ -138,7 +138,7 @@ public class ProfileService {
 				if (profile.getModifiedDate() != null) {
 					inputDate1 = profile.getCreatedDate();
 				}
-				map.put("Input Date", inputDate1);
+				map.put("InputDate", inputDate1);
 				break;
 			default:
 				break;
